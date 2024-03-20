@@ -23,6 +23,8 @@ dependencies {
     implementation(libs.guava)
 
     implementation("org.objenesis:objenesis:3.3")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.23")
 }
 
 java {
