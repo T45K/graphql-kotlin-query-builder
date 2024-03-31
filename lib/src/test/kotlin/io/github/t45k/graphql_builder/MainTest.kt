@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test
 class MainTest {
     @Test
     fun noArg() {
-        val query = buildQuery(SampleQuery::noArg) {
-            output = {
+        val query = graphQLBuilder {
+            SampleQuery::noArg.asQuery {
                 ::int.asField()
             }
         }
@@ -24,26 +24,52 @@ class MainTest {
 
     @Test
     fun withArg() {
-        val query = buildQuery(
-            SampleQuery::withArg,
-            SampleInput(1)
-        ) {
-            output = {
+        val query = graphQLBuilder {
+            SampleQuery::withArg.asQuery(SampleInput(1)) {
                 ::int.asField()
             }
         }
         assertEquals(
             """
                 |{
-                |  withArg(
-                |    input: {
-                |      int: 1
-                |    }
-                |  ) {
+                |  withArg(input: {
+                |    int: 1
+                |  }) {
                 |    int
                 |  }
                 |}
             """.trimMargin(), query
+        )
+    }
+
+    @Test
+    fun compound() {
+        val query = graphQLBuilder {
+            SampleQuery::withArg.asQuery(SampleInput(1)) {
+                ::intWithoutParam.asField()
+                ::objects.asObject {
+                    ::int.asField()
+                    ::intWithParam2.asField(SampleInput(2))
+                }
+            }
+        }
+        assertEquals(
+            """
+                |{
+                |  withArg(input: {
+                |    int: 1
+                |  }) {
+                |    intWithoutParam
+                |    objects {
+                |      int
+                |      intWithParam2(input: {
+                |        int: 2
+                |      })
+                |    }
+                |  }
+                |}
+            """.trimMargin(),
+            query
         )
     }
 }
